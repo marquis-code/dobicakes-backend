@@ -14,6 +14,19 @@ export class MarketingController {
     return this.marketingService.getActiveBanners();
   }
 
+  @Post('subscribe')
+  subscribe(@Body() data: { email: string; source?: string }) {
+    return this.marketingService.subscribe(data.email, data.source);
+  }
+
+  // Admin
+  @Get('subscriptions')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  getSubscriptions() {
+    return this.marketingService.getSubscriptions();
+  }
+
   @Post('promos/validate')
   @UseGuards(JwtAuthGuard)
   validatePromo(@Body('code') code: string) {

@@ -3,6 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { MarketingService } from './marketing.service';
 import { MarketingController } from './marketing.controller';
 import { Promo, PromoSchema, Banner, BannerSchema, EmailTemplate, EmailTemplateSchema, EmailCampaign, EmailCampaignSchema } from '../schemas/marketing.schema';
+import { Subscription, SubscriptionSchema } from '../schemas/subscription.schema';
 import { SharedModule } from '../shared/shared.module';
 
 @Module({
@@ -12,6 +13,7 @@ import { SharedModule } from '../shared/shared.module';
       { name: Banner.name, schema: BannerSchema },
       { name: EmailTemplate.name, schema: EmailTemplateSchema },
       { name: EmailCampaign.name, schema: EmailCampaignSchema },
+      { name: Subscription.name, schema: SubscriptionSchema },
     ]),
     SharedModule,
   ],

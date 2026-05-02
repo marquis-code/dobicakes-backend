@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Promo, Banner, EmailTemplate, EmailCampaign } from '../schemas/marketing.schema';
+import { Subscription } from '../schemas/subscription.schema';
 import { ResendService } from '../shared/services/resend.service';
 
 @Injectable()
@@ -11,8 +12,26 @@ export class MarketingService {
     @InjectModel(Banner.name) private bannerModel: Model<Banner>,
     @InjectModel(EmailTemplate.name) private templateModel: Model<EmailTemplate>,
     @InjectModel(EmailCampaign.name) private campaignModel: Model<EmailCampaign>,
+    @InjectModel(Subscription.name) private subscriptionModel: Model<Subscription>,
     private resendService: ResendService,
   ) {}
+
+  // Subscriptions
+  async getSubscriptions() {
+    return this.subscriptionModel.find().sort({ createdAt: -1 }).lean().exec();
+  }
+
+  async subscribe(email: string, source?: string) {
+    return this.subscriptionModel.findOneAndUpdate(
+      { email },
+      { email, source, isActive: true },
+      { upsert: true, new: true }
+    );
+  }
+
+  async unsubscribe(email: string) {
+    return this.subscriptionModel.findOneAndUpdate({ email }, { isActive: false });
+  }
 
   // Banners
   async getActiveBanners() {
