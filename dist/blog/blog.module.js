@@ -12,16 +12,21 @@ const mongoose_1 = require("@nestjs/mongoose");
 const blog_service_1 = require("./blog.service");
 const blog_controller_1 = require("./blog.controller");
 const blog_schema_1 = require("../schemas/blog.schema");
+const comment_schema_1 = require("../schemas/comment.schema");
 let BlogModule = class BlogModule {
 };
 exports.BlogModule = BlogModule;
 exports.BlogModule = BlogModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            mongoose_1.MongooseModule.forFeature([{ name: blog_schema_1.Blog.name, schema: blog_schema_1.BlogSchema }]),
+            mongoose_1.MongooseModule.forFeature([
+                { name: blog_schema_1.Blog.name, schema: blog_schema_1.BlogSchema },
+                { name: comment_schema_1.Comment.name, schema: comment_schema_1.CommentSchema },
+            ]),
         ],
         controllers: [blog_controller_1.BlogController],
         providers: [blog_service_1.BlogService],
+        exports: [blog_service_1.BlogService],
     })
 ], BlogModule);
 //# sourceMappingURL=blog.module.js.map

@@ -41,6 +41,12 @@ export class GoogleCalendarService {
           timeZone: 'Africa/Lagos',
         },
         attendees: [{ email: eventDetails.attendeeEmail }],
+        conferenceData: {
+          createRequest: {
+            requestId: `dobi-meet-${Date.now()}`,
+            conferenceSolutionKey: { type: 'hangoutsMeet' },
+          },
+        },
         reminders: {
           useDefault: false,
           overrides: [
@@ -53,6 +59,7 @@ export class GoogleCalendarService {
       const response = await this.calendar.events.insert({
         calendarId: this.configService.get('GOOGLE_CALENDAR_ID') || 'primary',
         requestBody: event,
+        conferenceDataVersion: 1,
       });
 
       return response.data;

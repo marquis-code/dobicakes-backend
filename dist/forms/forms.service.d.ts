@@ -7,5 +7,7 @@ export declare class FormsService {
     findAll(): Promise<FormDocument[]>;
     findOne(id: string): Promise<FormDocument>;
     submitResponse(id: string, responseData: any): Promise<FormDocument>;
+    update(id: string, updateData: any): Promise<FormDocument>;
     delete(id: string): Promise<any>;
+    seedForms(): Promise<any>;
 }

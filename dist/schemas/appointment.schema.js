@@ -14,25 +14,30 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 let Appointment = class Appointment extends mongoose_2.Document {
     user;
+    product;
     customerName;
     customerEmail;
     customerPhone;
-    date;
-    time;
-    type;
+    scheduledAt;
     notes;
     status;
     price;
     paymentStatus;
     paymentReference;
+    googleMeetLink;
     googleCalendarEventId;
     duration;
+    reminderSent;
 };
 exports.Appointment = Appointment;
 __decorate([
     (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'User' }),
     __metadata("design:type", mongoose_2.Types.ObjectId)
 ], Appointment.prototype, "user", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'AppointmentProduct', required: true }),
+    __metadata("design:type", mongoose_2.Types.ObjectId)
+], Appointment.prototype, "product", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
@@ -48,15 +53,7 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", Date)
-], Appointment.prototype, "date", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true }),
-    __metadata("design:type", String)
-], Appointment.prototype, "time", void 0);
-__decorate([
-    (0, mongoose_1.Prop)({ required: true, enum: ['Wedding Tasting', 'Birthday Consultation', 'Custom Order Discussion', 'General Enquiry'] }),
-    __metadata("design:type", String)
-], Appointment.prototype, "type", void 0);
+], Appointment.prototype, "scheduledAt", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
@@ -80,11 +77,19 @@ __decorate([
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
+], Appointment.prototype, "googleMeetLink", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
 ], Appointment.prototype, "googleCalendarEventId", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ default: 60 }),
     __metadata("design:type", Number)
 ], Appointment.prototype, "duration", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: false }),
+    __metadata("design:type", Boolean)
+], Appointment.prototype, "reminderSent", void 0);
 exports.Appointment = Appointment = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Appointment);

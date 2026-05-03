@@ -35,8 +35,14 @@ let FormsController = class FormsController {
     submitResponse(id, responseData) {
         return this.formsService.submitResponse(id, responseData);
     }
+    update(id, updateFormDto) {
+        return this.formsService.update(id, updateFormDto);
+    }
     remove(id) {
         return this.formsService.delete(id);
+    }
+    seed() {
+        return this.formsService.seedForms();
     }
 };
 exports.FormsController = FormsController;
@@ -73,6 +79,16 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], FormsController.prototype, "submitResponse", null);
 __decorate([
+    (0, common_1.Patch)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], FormsController.prototype, "update", null);
+__decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
     (0, roles_decorator_1.Roles)('ADMIN'),
@@ -81,6 +97,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], FormsController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Post)('seed'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], FormsController.prototype, "seed", null);
 exports.FormsController = FormsController = __decorate([
     (0, common_1.Controller)('forms'),
     __metadata("design:paramtypes", [forms_service_1.FormsService])

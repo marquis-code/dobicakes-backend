@@ -23,11 +23,29 @@ let AppointmentsController = class AppointmentsController {
     constructor(appointmentsService) {
         this.appointmentsService = appointmentsService;
     }
+    findAllProducts() {
+        return this.appointmentsService.findAllProducts();
+    }
+    findOneProduct(id) {
+        return this.appointmentsService.findOneProduct(id);
+    }
+    createProduct(data) {
+        return this.appointmentsService.createProduct(data);
+    }
+    updateProduct(id, data) {
+        return this.appointmentsService.updateProduct(id, data);
+    }
+    deleteProduct(id) {
+        return this.appointmentsService.deleteProduct(id);
+    }
     create(data) {
-        return this.appointmentsService.create(data);
+        return this.appointmentsService.createAppointment(data);
     }
     verifyPayment(reference) {
         return this.appointmentsService.verifyAppointmentPayment(reference);
+    }
+    findByUser(userId) {
+        return this.appointmentsService.findByUser(userId);
     }
     findAll() {
         return this.appointmentsService.findAll();
@@ -35,14 +53,52 @@ let AppointmentsController = class AppointmentsController {
     findOne(id) {
         return this.appointmentsService.findOne(id);
     }
-    updateStatus(id, status) {
-        return this.appointmentsService.updateStatus(id, status);
-    }
     remove(id) {
         return this.appointmentsService.delete(id);
     }
 };
 exports.AppointmentsController = AppointmentsController;
+__decorate([
+    (0, common_1.Get)('products'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "findAllProducts", null);
+__decorate([
+    (0, common_1.Get)('products/:id'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "findOneProduct", null);
+__decorate([
+    (0, common_1.Post)('products'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "createProduct", null);
+__decorate([
+    (0, common_1.Patch)('products/:id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "updateProduct", null);
+__decorate([
+    (0, common_1.Delete)('products/:id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "deleteProduct", null);
 __decorate([
     (0, common_1.Post)(),
     __param(0, (0, common_1.Body)()),
@@ -57,6 +113,14 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AppointmentsController.prototype, "verifyPayment", null);
+__decorate([
+    (0, common_1.Get)('user/:userId'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('userId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "findByUser", null);
 __decorate([
     (0, common_1.Get)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
@@ -73,16 +137,6 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], AppointmentsController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Patch)(':id/status'),
-    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
-    (0, roles_decorator_1.Roles)('ADMIN'),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)('status')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
-    __metadata("design:returntype", void 0)
-], AppointmentsController.prototype, "updateStatus", null);
 __decorate([
     (0, common_1.Delete)(':id'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

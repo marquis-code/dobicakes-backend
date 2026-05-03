@@ -8,6 +8,12 @@ export class Blog {
   @Prop({ required: true })
   title: string;
 
+  @Prop({ required: true, unique: true })
+  slug: string;
+
+  @Prop({ required: true })
+  summary: string;
+
   @Prop({ required: true })
   content: string;
 
@@ -16,6 +22,15 @@ export class Blog {
 
   @Prop({ required: true })
   author: string;
+
+  @Prop({ default: [] })
+  tags: string[];
+
+  @Prop({ default: 0 })
+  likes: number;
+
+  @Prop({ default: 0 })
+  readingTime: number;
 
   @Prop({ default: true })
   isPublished: boolean;

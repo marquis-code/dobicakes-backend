@@ -28,6 +28,7 @@ const dashboard_module_1 = require("./dashboard/dashboard.module");
 const cache_manager_1 = require("@nestjs/cache-manager");
 const cache_manager_redis_yet_1 = require("cache-manager-redis-yet");
 const nestjs_pino_1 = require("nestjs-pino");
+const schedule_1 = require("@nestjs/schedule");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -41,6 +42,7 @@ exports.AppModule = AppModule = __decorate([
                         : undefined,
                 }
             }),
+            schedule_1.ScheduleModule.forRoot(),
             cache_manager_1.CacheModule.registerAsync({
                 isGlobal: true,
                 imports: [config_1.ConfigModule],

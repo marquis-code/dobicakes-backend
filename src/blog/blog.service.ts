@@ -1,19 +1,40 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Blog, BlogDocument } from '../schemas/blog.schema';
+import { Comment, CommentDocument } from '../schemas/comment.schema';
 
 @Injectable()
 export class BlogService {
-  constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
+  constructor(
+    @InjectModel(Blog.name) private blogModel: Model<BlogDocument>,
+    @InjectModel(Comment.name) private commentModel: Model<CommentDocument>,
+  ) {}
+
+  private generateSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .replace(/[^\w ]+/g, '')
+      .replace(/ +/g, '-');
+  }
 
   async create(blogData: any): Promise<BlogDocument> {
-    const blog = new this.blogModel(blogData);
+    const slug = this.generateSlug(blogData.title);
+    const existing = await this.blogModel.findOne({ slug });
+    if (existing) throw new ConflictException('A blog with this title already exists');
+    
+    const blog = new this.blogModel({ ...blogData, slug });
     return blog.save();
   }
 
   async findAll(): Promise<BlogDocument[]> {
-    return this.blogModel.find({ isPublished: true }).exec();
+    return this.blogModel.find({ isPublished: true }).sort({ createdAt: -1 }).exec();
+  }
+
+  async findBySlug(slug: string): Promise<BlogDocument> {
+    const blog = await this.blogModel.findOne({ slug, isPublished: true }).exec();
+    if (!blog) throw new NotFoundException('Blog not found');
+    return blog;
   }
 
   async findOne(id: string): Promise<BlogDocument> {
@@ -30,5 +51,105 @@ export class BlogService {
 
   async delete(id: string): Promise<any> {
     return this.blogModel.findByIdAndDelete(id).exec();
+  }
+
+  // Engagement Features
+  async like(id: string): Promise<BlogDocument> {
+    const blog = await this.blogModel.findByIdAndUpdate(
+      id, 
+      { $inc: { likes: 1 } }, 
+      { new: true }
+    ).exec();
+    if (!blog) throw new NotFoundException('Blog not found');
+    return blog;
+  }
+
+  async addComment(blogId: string, commentData: any): Promise<CommentDocument> {
+    const comment = new this.commentModel({ ...commentData, blogId });
+    return comment.save();
+  }
+
+  async getComments(blogId: string): Promise<CommentDocument[]> {
+    return this.commentModel.find({ blogId: blogId as any, isApproved: true }).sort({ createdAt: -1 }).exec();
+  }
+
+  // Seeding Functionality
+  async seedBlogs(): Promise<any> {
+    const seedData = [
+      {
+        title: "The Thermodynamics of Tempering: A Masterclass",
+        summary: "Beyond just melting chocolate, learn the molecular science of crystal structures that gives our ganache its signature mirror-finish snap.",
+        content: `
+          <h1>The Science of the Snap</h1>
+          <p>Chocolate is not merely an ingredient; it is a complex, polymorphic substance that requires precision akin to high-stakes chemistry. When we temper chocolate at Dobi Cakes, we are essentially managing the creation of Beta V crystals—the most stable and aesthetically pleasing form of cocoa butter crystals.</p>
+          <blockquote>"To master chocolate is to master time and temperature in perfect synchronicity."</blockquote>
+          <img src="https://images.unsplash.com/photo-1548907040-4baa42d10919?auto=format&fit=crop&q=80&w=1200" alt="Chocolate Tempering" />
+          <h2>The Three Pillars of Tempering</h2>
+          <p>Achieving that elusive glossy finish and the crisp 'snap' when you bite into a truffle requires rigorous adherence to the three pillars of tempering: Time, Temperature, and Agitation. Without these, your chocolate may become 'bloomed'—that unappealing gray film caused by fat migration.</p>
+          <ul>
+            <li><strong>Melting:</strong> Heating to exactly 45°C to break down all existing crystal structures.</li>
+            <li><strong>Cooling:</strong> Rapidly bringing the temperature down to 27°C to encourage the initial formation of crystals.</li>
+            <li><strong>Reheating:</strong> Gently lifting the temperature back to 31°C to melt away unstable Type I-IV crystals, leaving only the superior Type V.</li>
+          </ul>
+          <h2>Why It Matters to the Palate</h2>
+          <p>Tempered chocolate doesn't just look better; it melts at a higher temperature, meaning it won't smudge on your fingers but will melt instantly upon contact with the warmth of your tongue, releasing a complex profile of earthy, fruity, and nutty notes characteristic of our West African cocoa beans.</p>
+        `,
+        author: "Adaobi Okafor",
+        tags: ["Masterclass", "Chocolate", "Technique"],
+        image: "https://images.unsplash.com/photo-1548907040-4baa42d10919?auto=format&fit=crop&q=80&w=1200",
+        readingTime: 8,
+        isPublished: true
+      },
+      {
+        title: "The Heritage of Nigerian Sugars",
+        summary: "Exploring the unrefined, local sweeteners that give our cakes a depth of flavor you won't find in mass-produced pastries.",
+        content: `
+          <h1>Sweetness with Soul</h1>
+          <p>For decades, the global pastry industry has been obsessed with refined white sugar. At Dobi Cakes, we are looking back to our roots. By incorporating unrefined cane sugars and local honey from the northern plains, we introduce a 'terroir' to our baking that is uniquely Nigerian.</p>
+          <img src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=1200" alt="Artisanal Sugar" />
+          <h2>The Molasses Profile</h2>
+          <p>Our signature 'Heritage Sponge' uses a blend of local muscovado. This sugar still contains its natural molasses, providing a moisture level and a deep, almost smoky caramel note that complements our spice-infused frostings perfectly.</p>
+          <blockquote>"Sugar should be more than just a sweetener; it should be a flavor profile in its own right."</blockquote>
+          <h2>Supporting Local Ecosystems</h2>
+          <p>Beyond flavor, sourcing our sweeteners from artisanal cooperatives ensures that we are preserving traditional sugar-making techniques that have been in families for generations. It is a commitment to the flavor of the past and the sustainability of the future.</p>
+          <ul>
+            <li>Cold-pressed raw cane juice</li>
+            <li>Wildflower honey from the Savanna</li>
+            <li>Hand-harvested palm sugar</li>
+          </ul>
+        `,
+        author: "Lead Artisanal Chef",
+        tags: ["Heritage", "Sustainability", "Ingredients"],
+        image: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=1200",
+        readingTime: 6,
+        isPublished: true
+      },
+      {
+        title: "Architecture of a Tiered Masterpiece",
+        summary: "A behind-the-scenes look at the structural engineering required to create our gravity-defying wedding cakes.",
+        content: `
+          <h1>Engineering Elegance</h1>
+          <p>When a bride asks for a seven-tiered cake, she is asking for more than a dessert; she is asking for a structural triumph. Each Dobi tiered cake is built using internal supports that are mathematically calculated to distribute weight without compromising the delicate crumb of the sponge.</p>
+          <img src="https://images.unsplash.com/photo-1535254973040-607b474cb8c2?auto=format&fit=crop&q=80&w=1200" alt="Wedding Cake Structure" />
+          <h2>The Doweling System</h2>
+          <p>We use a combination of food-grade bamboo dowels and central support rods. Each tier sits on its own cake board, which rests on the dowels of the tier below. This ensures that the bottom tier isn't actually carrying the full weight of the six tiers above it—the support structure is.</p>
+          <blockquote>"A wedding cake should be as stable as the marriage it celebrates."</blockquote>
+          <h2>Transport: The Final Challenge</h2>
+          <p>Building it is only half the battle. Transporting a 50kg cake through the vibrant, often bumpy streets of Lagos requires specialized refrigeration and custom-built shock-absorbing delivery vehicles. It's a logistical ballet that we perform every weekend to ensure your masterpiece arrives in flawless condition.</p>
+        `,
+        author: "Adaobi Okafor",
+        tags: ["Wedding Cakes", "Engineering", "Behind the Scenes"],
+        image: "https://images.unsplash.com/photo-1535254973040-607b474cb8c2?auto=format&fit=crop&q=80&w=1200",
+        readingTime: 7,
+        isPublished: true
+      }
+    ];
+
+    for (const blog of seedData) {
+      const slug = this.generateSlug(blog.title);
+      await this.blogModel.findOneAndUpdate({ slug }, { ...blog, slug }, { upsert: true, new: true });
+    }
+
+    return { message: "Seeding complete", count: seedData.length };
   }
 }

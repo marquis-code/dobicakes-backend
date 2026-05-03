@@ -6,5 +6,7 @@ export declare class FormsController {
     findAll(): Promise<import("../schemas/form.schema").FormDocument[]>;
     findOne(id: string): Promise<import("../schemas/form.schema").FormDocument>;
     submitResponse(id: string, responseData: any): Promise<import("../schemas/form.schema").FormDocument>;
+    update(id: string, updateFormDto: any): Promise<import("../schemas/form.schema").FormDocument>;
     remove(id: string): Promise<any>;
+    seed(): Promise<any>;
 }

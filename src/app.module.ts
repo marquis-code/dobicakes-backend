@@ -19,6 +19,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import { LoggerModule } from 'nestjs-pino';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { LoggerModule } from 'nestjs-pino';
           : undefined,
       }
     }),
+    ScheduleModule.forRoot(),
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],

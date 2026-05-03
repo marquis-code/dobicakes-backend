@@ -23,11 +23,17 @@ let BlogController = class BlogController {
     constructor(blogService) {
         this.blogService = blogService;
     }
+    seed() {
+        return this.blogService.seedBlogs();
+    }
     create(createBlogDto) {
         return this.blogService.create(createBlogDto);
     }
     findAll() {
         return this.blogService.findAll();
+    }
+    findBySlug(slug) {
+        return this.blogService.findBySlug(slug);
     }
     findOne(id) {
         return this.blogService.findOne(id);
@@ -38,8 +44,25 @@ let BlogController = class BlogController {
     remove(id) {
         return this.blogService.delete(id);
     }
+    like(id) {
+        return this.blogService.like(id);
+    }
+    addComment(id, commentData) {
+        return this.blogService.addComment(id, commentData);
+    }
+    getComments(id) {
+        return this.blogService.getComments(id);
+    }
 };
 exports.BlogController = BlogController;
+__decorate([
+    (0, common_1.Post)('seed'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], BlogController.prototype, "seed", null);
 __decorate([
     (0, common_1.Post)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
@@ -55,6 +78,13 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], BlogController.prototype, "findAll", null);
+__decorate([
+    (0, common_1.Get)('slug/:slug'),
+    __param(0, (0, common_1.Param)('slug')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], BlogController.prototype, "findBySlug", null);
 __decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
@@ -81,6 +111,28 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], BlogController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Post)(':id/like'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], BlogController.prototype, "like", null);
+__decorate([
+    (0, common_1.Post)(':id/comments'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], BlogController.prototype, "addComment", null);
+__decorate([
+    (0, common_1.Get)(':id/comments'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], BlogController.prototype, "getComments", null);
 exports.BlogController = BlogController = __decorate([
     (0, common_1.Controller)('blog'),
     __metadata("design:paramtypes", [blog_service_1.BlogService])

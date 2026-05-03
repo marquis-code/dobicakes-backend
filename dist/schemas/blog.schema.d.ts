@@ -2,9 +2,14 @@ import { Document } from 'mongoose';
 export type BlogDocument = Blog & Document;
 export declare class Blog {
     title: string;
+    slug: string;
+    summary: string;
     content: string;
     image: string;
     author: string;
+    tags: string[];
+    likes: number;
+    readingTime: number;
     isPublished: boolean;
 }
 export declare const BlogSchema: import("mongoose").Schema<Blog, import("mongoose").Model<Blog, any, any, any, (Document<unknown, any, Blog, any, import("mongoose").DefaultSchemaOptions> & Blog & {
@@ -35,6 +40,24 @@ export declare const BlogSchema: import("mongoose").Schema<Blog, import("mongoos
     }, "id"> & {
         id: string;
     }> | undefined;
+    slug?: import("mongoose").SchemaDefinitionProperty<string, Blog, Document<unknown, {}, Blog, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Blog & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    summary?: import("mongoose").SchemaDefinitionProperty<string, Blog, Document<unknown, {}, Blog, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Blog & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
     content?: import("mongoose").SchemaDefinitionProperty<string, Blog, Document<unknown, {}, Blog, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Blog & {
@@ -54,6 +77,33 @@ export declare const BlogSchema: import("mongoose").Schema<Blog, import("mongoos
         id: string;
     }> | undefined;
     author?: import("mongoose").SchemaDefinitionProperty<string, Blog, Document<unknown, {}, Blog, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Blog & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    tags?: import("mongoose").SchemaDefinitionProperty<string[], Blog, Document<unknown, {}, Blog, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Blog & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    likes?: import("mongoose").SchemaDefinitionProperty<number, Blog, Document<unknown, {}, Blog, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Blog & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    readingTime?: import("mongoose").SchemaDefinitionProperty<number, Blog, Document<unknown, {}, Blog, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Blog & {
         _id: import("mongoose").Types.ObjectId;

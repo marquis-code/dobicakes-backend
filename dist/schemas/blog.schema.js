@@ -13,9 +13,14 @@ exports.BlogSchema = exports.Blog = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 let Blog = class Blog {
     title;
+    slug;
+    summary;
     content;
     image;
     author;
+    tags;
+    likes;
+    readingTime;
     isPublished;
 };
 exports.Blog = Blog;
@@ -23,6 +28,14 @@ __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
 ], Blog.prototype, "title", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true, unique: true }),
+    __metadata("design:type", String)
+], Blog.prototype, "slug", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true }),
+    __metadata("design:type", String)
+], Blog.prototype, "summary", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
@@ -35,6 +48,18 @@ __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
 ], Blog.prototype, "author", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: [] }),
+    __metadata("design:type", Array)
+], Blog.prototype, "tags", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 0 }),
+    __metadata("design:type", Number)
+], Blog.prototype, "likes", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 0 }),
+    __metadata("design:type", Number)
+], Blog.prototype, "readingTime", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ default: true }),
     __metadata("design:type", Boolean)

@@ -6,6 +6,9 @@ export class Appointment extends Document {
   @Prop({ type: Types.ObjectId, ref: 'User' })
   user: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'AppointmentProduct', required: true })
+  product: Types.ObjectId;
+
   @Prop({ required: true })
   customerName: string;
 
@@ -16,13 +19,7 @@ export class Appointment extends Document {
   customerPhone: string;
 
   @Prop({ required: true })
-  date: Date;
-
-  @Prop({ required: true })
-  time: string;
-
-  @Prop({ required: true, enum: ['Wedding Tasting', 'Birthday Consultation', 'Custom Order Discussion', 'General Enquiry'] })
-  type: string;
+  scheduledAt: Date; // Full date and time
 
   @Prop()
   notes: string;
@@ -40,10 +37,16 @@ export class Appointment extends Document {
   paymentReference: string;
 
   @Prop()
+  googleMeetLink: string;
+
+  @Prop()
   googleCalendarEventId: string;
 
-  @Prop({ default: 60 }) // duration in minutes
+  @Prop({ default: 60 }) // duration in minutes inherited from product at time of booking
   duration: number;
+
+  @Prop({ default: false })
+  reminderSent: boolean;
 }
 
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);
