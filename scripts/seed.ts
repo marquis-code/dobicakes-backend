@@ -96,6 +96,72 @@ const products = [
     ],
     tags: ["Luxury", "Masterpiece"],
     availabilityType: "PREORDER"
+  },
+  {
+    name: "Raspberry & White Chocolate Mille-Feuille Cake",
+    description: "An innovative take on the classic French pastry. Alternating layers of crisp, caramelized puff pastry, fresh raspberry compote, and whipped white chocolate ganache.",
+    price: 36000,
+    stock: 6,
+    category: "Birthday",
+    images: [
+      "https://images.unsplash.com/photo-1565958011703-44f9829ba187?auto=format&fit=crop&q=80&w=1000"
+    ],
+    flavors: ["White Chocolate", "Vanilla Bean"],
+    sizes: [
+      { name: "Standard 8-inch", priceOffset: 0 },
+      { name: "Large 10-inch", priceOffset: 12000 }
+    ],
+    tags: ["New", "French-Inspired"],
+    availabilityType: "NOW"
+  },
+  {
+    name: "Classic New York Vanilla Cheesecake",
+    description: "Our signature, ultra-dense, slow-baked New York cheesecake on a buttery digestive biscuit crust. Served with a tart passion fruit coulis.",
+    price: 25000,
+    stock: 12,
+    category: "Cheesecake",
+    images: [
+      "https://images.unsplash.com/photo-1533134242443-d4fd215305ad?auto=format&fit=crop&q=80&w=1000"
+    ],
+    flavors: ["Vanilla", "Passion Fruit"],
+    sizes: [
+      { name: "8-inch", priceOffset: 0 }
+    ],
+    tags: ["Classic"],
+    availabilityType: "NOW"
+  },
+  {
+    name: "Double Fudge Artisan Brownie Tray",
+    description: "A decadent 12x9 inch tray of our dense, fudgy brownies. Loaded with 70% dark Belgian chocolate chunks and finished with flaky sea salt.",
+    price: 12000,
+    stock: 20,
+    category: "Brownies",
+    images: [
+      "https://images.unsplash.com/photo-1606312619070-d48b4c652a52?auto=format&fit=crop&q=80&w=1000"
+    ],
+    flavors: ["Dark Chocolate"],
+    sizes: [
+      { name: "Standard Tray", priceOffset: 0 }
+    ],
+    tags: ["Popular"],
+    availabilityType: "NOW"
+  },
+  {
+    name: "Rose Gold Macaron Tower",
+    description: "A stunning 4-tier tower featuring 40 delicate French macarons in shades of rose gold, blush, and cream. Flavors include Rose Water, Lychee, Vanilla, and White Chocolate.",
+    price: 65000,
+    stock: 3,
+    category: "Occasion",
+    images: [
+      "https://images.unsplash.com/photo-1569864358642-9d1684040f43?auto=format&fit=crop&q=80&w=1000"
+    ],
+    flavors: ["Assorted"],
+    sizes: [
+      { name: "4-Tier (40 pcs)", priceOffset: 0 },
+      { name: "6-Tier (75 pcs)", priceOffset: 45000 }
+    ],
+    tags: ["Luxury", "Event Centerpiece"],
+    availabilityType: "PREORDER"
   }
 ];
 

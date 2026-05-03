@@ -23,6 +23,7 @@ export declare class NotificationsController {
     } & {
         id: string;
     }) | null>;
+    markAllAsReadAdmin(): Promise<import("mongoose").UpdateWriteOpResult>;
     markAllAsRead(userId: string): Promise<import("mongoose").UpdateWriteOpResult>;
     remove(id: string): Promise<(import("mongoose").Document<unknown, {}, import("../schemas/notification.schema").Notification, {}, import("mongoose").DefaultSchemaOptions> & import("../schemas/notification.schema").Notification & Required<{
         _id: import("mongoose").Types.ObjectId;

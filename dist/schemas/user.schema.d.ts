@@ -12,6 +12,10 @@ export declare class User {
     isActive: boolean;
     resetPasswordToken?: string | null;
     resetPasswordExpires?: Date | null;
+    otp?: string | null;
+    otpExpires?: Date | null;
+    createdAt: Date;
+    updatedAt: Date;
 }
 export declare const UserSchema: import("mongoose").Schema<User, import("mongoose").Model<User, any, any, any, (Document<unknown, any, User, any, import("mongoose").DefaultSchemaOptions> & User & {
     _id: import("mongoose").Types.ObjectId;
@@ -123,6 +127,42 @@ export declare const UserSchema: import("mongoose").Schema<User, import("mongoos
         id: string;
     }> | undefined;
     resetPasswordExpires?: import("mongoose").SchemaDefinitionProperty<Date | null | undefined, User, Document<unknown, {}, User, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<User & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    otp?: import("mongoose").SchemaDefinitionProperty<string | null | undefined, User, Document<unknown, {}, User, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<User & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    otpExpires?: import("mongoose").SchemaDefinitionProperty<Date | null | undefined, User, Document<unknown, {}, User, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<User & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    createdAt?: import("mongoose").SchemaDefinitionProperty<Date, User, Document<unknown, {}, User, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<User & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    updatedAt?: import("mongoose").SchemaDefinitionProperty<Date, User, Document<unknown, {}, User, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<User & {
         _id: import("mongoose").Types.ObjectId;

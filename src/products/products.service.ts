@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Product, ProductDocument } from '../schemas/product.schema';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
+import { paginate } from '../shared/utils/pagination';
 
 const PRODUCTS_CACHE_KEY = 'products:all';
 const PRODUCT_CACHE_PREFIX = 'products:';
@@ -22,12 +23,14 @@ export class ProductsService {
     return saved;
   }
 
-  async findAll(query: any = {}): Promise<any[]> {
-    const cacheKey = `${PRODUCTS_CACHE_KEY}:${JSON.stringify(query)}`;
+  async findAll(query: any = {}): Promise<any> {
+    const page = parseInt(query.page || '1');
+    const limit = parseInt(query.limit || '12');
+    const cacheKey = `${PRODUCTS_CACHE_KEY}:${page}:${limit}:${JSON.stringify(query)}`;
     
-    // Try cache first with safety wrapper
+    // Try cache first
     try {
-      const cached = await this.cacheManager.get<any[]>(cacheKey);
+      const cached = await this.cacheManager.get(cacheKey);
       if (cached) return cached;
     } catch (e) {
       console.warn('Cache lookup failed:', e.message);
@@ -37,36 +40,24 @@ export class ProductsService {
     if (query.category && query.category !== 'All') filter.category = query.category;
     if (query.availabilityType && query.availabilityType !== 'all') filter.availabilityType = query.availabilityType;
 
-    const q = this.productModel.find(filter).lean();
+    const sortMap: any = {
+      'price_low': { price: 1 },
+      'price_high': { price: -1 },
+      'latest': { createdAt: -1 },
+      'name': { name: 1 }
+    };
+    const sort = sortMap[query.sort] || { createdAt: -1 };
 
-    // Handle Limit
-    if (query.limit) {
-      q.limit(parseInt(query.limit.toString()));
-    }
-
-    // Handle Sort
-    if (query.sort) {
-      const sortMap: any = {
-        'price_low': { price: 1 },
-        'price_high': { price: -1 },
-        'latest': { createdAt: -1 },
-        'name': { name: 1 }
-      };
-      if (sortMap[query.sort]) q.sort(sortMap[query.sort]);
-    } else {
-      q.sort({ createdAt: -1 });
-    }
-
-    const products = await q.exec();
+    const result = await paginate<ProductDocument>(this.productModel, filter, page, limit, sort);
     
-    // Save to cache with safety wrapper
+    // Save to cache
     try {
-      await this.cacheManager.set(cacheKey, products, CACHE_TTL);
+      await this.cacheManager.set(cacheKey, result, CACHE_TTL);
     } catch (e) {
       console.warn('Cache save failed:', e.message);
     }
 
-    return products;
+    return result;
   }
 
   async findOne(id: string): Promise<any> {

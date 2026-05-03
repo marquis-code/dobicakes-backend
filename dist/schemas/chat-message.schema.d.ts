@@ -7,6 +7,7 @@ export declare class ChatMessage {
     senderType: 'USER' | 'ADMIN';
     isRead: boolean;
     roomId: string;
+    attachments: string[];
 }
 export declare const ChatMessageSchema: import("mongoose").Schema<ChatMessage, import("mongoose").Model<ChatMessage, any, any, any, (Document<unknown, any, ChatMessage, any, import("mongoose").DefaultSchemaOptions> & ChatMessage & {
     _id: import("mongoose").Types.ObjectId;
@@ -73,6 +74,15 @@ export declare const ChatMessageSchema: import("mongoose").Schema<ChatMessage, i
         id: string;
     }> | undefined;
     roomId?: import("mongoose").SchemaDefinitionProperty<string, ChatMessage, Document<unknown, {}, ChatMessage, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<ChatMessage & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    attachments?: import("mongoose").SchemaDefinitionProperty<string[], ChatMessage, Document<unknown, {}, ChatMessage, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<ChatMessage & {
         _id: import("mongoose").Types.ObjectId;

@@ -9,10 +9,13 @@ export class Enquiry extends Document {
   @Prop({ required: true })
   email: string;
 
-  @Prop({ required: true })
+  @Prop()
   phone: string;
 
-  @Prop({ required: true, enum: ['general', 'custom', 'partnership', 'complaint'] })
+  @Prop()
+  subject: string;
+
+  @Prop({ default: 'general', enum: ['general', 'custom', 'partnership', 'complaint'] })
   type: string;
 
   @Prop({ required: true })

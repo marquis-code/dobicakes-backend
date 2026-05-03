@@ -25,6 +25,8 @@ let Product = class Product {
     tags;
     availabilityType;
     metadata;
+    createdAt;
+    updatedAt;
 };
 exports.Product = Product;
 __decorate([

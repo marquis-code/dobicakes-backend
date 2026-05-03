@@ -23,6 +23,10 @@ let User = class User {
     isActive;
     resetPasswordToken;
     resetPasswordExpires;
+    otp;
+    otpExpires;
+    createdAt;
+    updatedAt;
 };
 exports.User = User;
 __decorate([
@@ -69,6 +73,14 @@ __decorate([
     (0, mongoose_1.Prop)({ type: Date, required: false }),
     __metadata("design:type", Object)
 ], User.prototype, "resetPasswordExpires", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: String, required: false }),
+    __metadata("design:type", Object)
+], User.prototype, "otp", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: Date, required: false }),
+    __metadata("design:type", Object)
+], User.prototype, "otpExpires", void 0);
 exports.User = User = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], User);

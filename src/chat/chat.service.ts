@@ -2,16 +2,28 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ChatMessage, ChatMessageDocument } from '../schemas/chat-message.schema';
+import { NotificationsService } from '../notifications/notifications.service';
 
 @Injectable()
 export class ChatService {
   constructor(
     @InjectModel(ChatMessage.name) private chatModel: Model<ChatMessageDocument>,
+    private readonly notificationsService: NotificationsService
   ) {}
 
   async saveMessage(data: any): Promise<ChatMessageDocument> {
-    const newMessage = new this.chatModel(data);
-    return newMessage.save();
+    const newMessage = await new this.chatModel(data).save();
+    
+    if (data.senderType === 'USER') {
+      await this.notificationsService.create({
+        title: 'New Support Message',
+        message: `You have a new message from ${data.userName}`,
+        type: 'chat',
+        link: `/admin/chat?room=${data.roomId}`
+      });
+    }
+    
+    return newMessage;
   }
 
   async getMessages(roomId: string): Promise<ChatMessageDocument[]> {
@@ -25,6 +37,7 @@ export class ChatService {
         $group: {
           _id: '$roomId',
           lastMessage: { $first: '$message' },
+          attachments: { $first: '$attachments' },
           userName: { $first: '$userName' },
           userEmail: { $first: '$userEmail' },
           createdAt: { $first: '$createdAt' },
@@ -32,6 +45,16 @@ export class ChatService {
             $sum: { $cond: [{ $and: [{ $eq: ['$isRead', false] }, { $eq: ['$senderType', 'USER'] }] }, 1, 0] },
           },
         },
+      },
+      { $addFields: { 
+          displayMessage: { 
+            $cond: [
+              { $and: [{ $eq: ['$lastMessage', ''] }, { $gt: [{ $size: { $ifNull: ['$attachments', []] } }, 0] }] },
+              '[Image]',
+              '$lastMessage'
+            ]
+          }
+        }
       },
       { $sort: { createdAt: -1 } },
     ]);

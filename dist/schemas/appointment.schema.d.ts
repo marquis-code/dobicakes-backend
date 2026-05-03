@@ -9,6 +9,11 @@ export declare class Appointment extends Document {
     type: string;
     notes: string;
     status: string;
+    price: number;
+    paymentStatus: string;
+    paymentReference: string;
+    googleCalendarEventId: string;
+    duration: number;
 }
 export declare const AppointmentSchema: import("mongoose").Schema<Appointment, import("mongoose").Model<Appointment, any, any, any, (Document<unknown, any, Appointment, any, import("mongoose").DefaultSchemaOptions> & Appointment & Required<{
     _id: Types.ObjectId;
@@ -74,6 +79,24 @@ export declare const AppointmentSchema: import("mongoose").Schema<Appointment, i
     }, "id"> & {
         id: string;
     }> | undefined;
+    price?: import("mongoose").SchemaDefinitionProperty<number, Appointment, Document<unknown, {}, Appointment, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Appointment & Required<{
+        _id: Types.ObjectId;
+    }> & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    paymentReference?: import("mongoose").SchemaDefinitionProperty<string, Appointment, Document<unknown, {}, Appointment, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Appointment & Required<{
+        _id: Types.ObjectId;
+    }> & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
     customerName?: import("mongoose").SchemaDefinitionProperty<string, Appointment, Document<unknown, {}, Appointment, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Appointment & Required<{
@@ -111,6 +134,33 @@ export declare const AppointmentSchema: import("mongoose").Schema<Appointment, i
         id: string;
     }> | undefined;
     notes?: import("mongoose").SchemaDefinitionProperty<string, Appointment, Document<unknown, {}, Appointment, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Appointment & Required<{
+        _id: Types.ObjectId;
+    }> & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    paymentStatus?: import("mongoose").SchemaDefinitionProperty<string, Appointment, Document<unknown, {}, Appointment, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Appointment & Required<{
+        _id: Types.ObjectId;
+    }> & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    googleCalendarEventId?: import("mongoose").SchemaDefinitionProperty<string, Appointment, Document<unknown, {}, Appointment, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Appointment & Required<{
+        _id: Types.ObjectId;
+    }> & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    duration?: import("mongoose").SchemaDefinitionProperty<number, Appointment, Document<unknown, {}, Appointment, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Appointment & Required<{
         _id: Types.ObjectId;

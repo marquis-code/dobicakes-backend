@@ -48,6 +48,9 @@ export class Product {
 
   @Prop({ type: Object })
   metadata: Record<string, any>;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

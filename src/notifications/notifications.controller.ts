@@ -26,6 +26,13 @@ export class NotificationsController {
     return this.notificationsService.markAsRead(id);
   }
 
+  @Patch('read-all')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  markAllAsReadAdmin() {
+    return this.notificationsService.markAllAsRead('ADMIN'); // Overloading slightly
+  }
+
   @Patch('user/:userId/read-all')
   markAllAsRead(@Param('userId') userId: string) {
     return this.notificationsService.markAllAsRead(userId);

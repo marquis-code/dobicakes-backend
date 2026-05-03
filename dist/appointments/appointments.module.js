@@ -12,6 +12,7 @@ const mongoose_1 = require("@nestjs/mongoose");
 const appointments_service_1 = require("./appointments.service");
 const appointments_controller_1 = require("./appointments.controller");
 const appointment_schema_1 = require("../schemas/appointment.schema");
+const shared_module_1 = require("../shared/shared.module");
 let AppointmentsModule = class AppointmentsModule {
 };
 exports.AppointmentsModule = AppointmentsModule;
@@ -19,6 +20,7 @@ exports.AppointmentsModule = AppointmentsModule = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: appointment_schema_1.Appointment.name, schema: appointment_schema_1.AppointmentSchema }]),
+            shared_module_1.SharedModule,
         ],
         controllers: [appointments_controller_1.AppointmentsController],
         providers: [appointments_service_1.AppointmentsService],

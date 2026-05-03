@@ -104,6 +104,50 @@ export class AuthService {
     return this.login(user);
   }
 
+  async adminLogin(credentials: any) {
+    const user = await this.usersService.findByEmail(credentials.email);
+    if (!user || user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Access denied');
+    }
+
+    const isPasswordValid = user.password ? await bcrypt.compare(credentials.password, user.password) : false;
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Default OTP for now as requested
+    const otp = '123456';
+    const expires = new Date();
+    expires.setMinutes(expires.getMinutes() + 10); // OTP valid for 10 mins
+
+    await this.usersService.update(user._id.toString(), {
+      otp,
+      otpExpires: expires,
+    });
+
+    // In production, we would send this via email/SMS here
+    return { message: 'OTP sent to registered administrator email' };
+  }
+
+  async verifyAdminOtp(credentials: any) {
+    const user = await this.usersService.findByEmail(credentials.email);
+    if (!user || user.role !== 'ADMIN') {
+      throw new UnauthorizedException('Access denied');
+    }
+
+    if (user.otp !== credentials.otp || !user.otpExpires || new Date() > user.otpExpires) {
+      throw new UnauthorizedException('Invalid or expired OTP');
+    }
+
+    // Clear OTP after successful verification
+    await this.usersService.update(user._id.toString(), {
+      otp: null,
+      otpExpires: null,
+    });
+
+    return this.login(user);
+  }
+
   async firebaseLogin(token: string) {
     const decodedToken = await this.firebaseService.verifyIdToken(token);
     let user = await this.usersService.findByFirebaseUid(decodedToken.uid);

@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order, OrderDocument } from '../schemas/order.schema';
@@ -8,6 +8,8 @@ import { ProductsService } from '../products/products.service';
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     @InjectModel(Order.name) private orderModel: Model<OrderDocument>,
     private paystackService: PaystackService,
@@ -25,45 +27,148 @@ export class OrdersService {
     }
 
     const order = new this.orderModel(orderData);
-    
+
+    // ─── PAYSTACK CARD PAYMENT ───────────────────────
     if (order.paymentMethod === 'PAYSTACK') {
       const payment = await this.paystackService.initializePayment(
         orderData.userEmail || orderData.shippingAddress.email,
         order.totalAmount,
-        { orderId: order._id }
+        { orderId: order._id.toString() }
       );
       order.paymentReference = payment.data.reference;
       await order.save();
       return { order, payment };
     }
 
+    // ─── BANK TRANSFER (Virtual Account) ─────────────
     if (order.paymentMethod === 'BANK_TRANSFER') {
+      await order.save();
+
       try {
-        // 1. Create or fetch Paystack Customer
-        const [firstName, ...lastNameParts] = (orderData.shippingAddress.name || 'Guest').split(' ');
-        const customer = await this.paystackService.createCustomer(
-          orderData.userEmail || orderData.shippingAddress.email || `guest_${order._id}@dobicakes.com`,
-          firstName,
-          lastNameParts.join(' ') || 'User',
-          orderData.shippingAddress.phone
+        const email = orderData.userEmail || orderData.shippingAddress.email || `guest_${order._id}@dobicakes.com`;
+        const name = orderData.shippingAddress?.name || 'Dobi Cakes Customer';
+
+        // Use Paystack transaction/initialize with bank_transfer channel
+        // This generates a temporary virtual account for THIS specific transaction
+        const bankTransfer = await this.paystackService.createTransferRecipient(
+          name,
+          email,
+          order.totalAmount,
+          { orderId: order._id.toString(), custom_fields: [{ display_name: 'Order ID', variable_name: 'order_id', value: order._id.toString() }] }
         );
 
-        // 2. Create Virtual Account
-        const va = await this.paystackService.createVirtualAccount(customer.data.customer_code);
-        
-        order.virtualAccount = {
-          bankName: va.data.bank.name,
-          accountNumber: va.data.account_number,
-          accountName: va.data.account_name
-        };
+        if (bankTransfer.status && bankTransfer.data) {
+          order.paymentReference = bankTransfer.data.reference;
+          order.virtualAccountRef = bankTransfer.data.access_code;
+
+          // Store the authorization URL — the user will be redirected here
+          // Paystack will show them the virtual account details
+          await order.save();
+
+          return {
+            order,
+            bankTransfer: {
+              reference: bankTransfer.data.reference,
+              accessCode: bankTransfer.data.access_code,
+              authorizationUrl: bankTransfer.data.authorization_url,
+            },
+          };
+        }
       } catch (err) {
-        console.error('Virtual account creation failed:', err);
-        // Fallback to manual transfer if automated VA fails
+        this.logger.error(`Bank transfer initialization failed: ${err?.response?.data?.message || err.message}`);
+        // Fallback — save order and let admin handle manually
       }
+
+      await order.save();
+      return { order };
     }
 
     await order.save();
     return { order };
+  }
+
+  // ─── WEBHOOK HANDLER ────────────────────────────────
+  async handleWebhook(event: string, data: any): Promise<void> {
+    this.logger.log(`Webhook received: ${event}`);
+
+    if (event === 'charge.success') {
+      const reference = data.reference;
+      const orderId = data.metadata?.orderId;
+
+      if (!orderId && !reference) {
+        this.logger.warn('Webhook charge.success without orderId or reference');
+        return;
+      }
+
+      // Find order by reference or metadata orderId
+      let order: OrderDocument | null = null;
+      if (reference) {
+        order = await this.orderModel.findOne({ paymentReference: reference });
+      }
+      if (!order && orderId) {
+        order = await this.orderModel.findById(orderId);
+      }
+
+      if (!order) {
+        this.logger.warn(`Webhook: Order not found for ref=${reference}, id=${orderId}`);
+        return;
+      }
+
+      if (order.status === 'PROCESSING') {
+        this.logger.log(`Order ${order._id} already marked as PAID`);
+        return;
+      }
+
+      order.status = 'PROCESSING';
+      order.paymentReference = reference;
+      await order.save();
+
+      this.logger.log(`Order ${order._id} marked PAID via webhook`);
+
+      // Reduce stock
+      for (const item of order.items) {
+        await this.productsService.updateStock(item.product.toString(), -item.quantity);
+      }
+
+      // Send confirmation email
+      await this.sendConfirmationEmail(order);
+    }
+  }
+
+  // ─── CHECK PAYMENT STATUS (Polling) ─────────────────
+  async checkPaymentStatus(orderId: string): Promise<any> {
+    const order = await this.orderModel.findById(orderId);
+    if (!order) throw new NotFoundException('Order not found');
+
+    // If already paid, return immediately
+    if (order.status === 'PROCESSING') {
+      return { status: 'PROCESSING', order };
+    }
+
+    // If we have a reference, verify with Paystack
+    if (order.paymentReference) {
+      try {
+        const verification = await this.paystackService.verifyPayment(order.paymentReference);
+        if (verification.data?.status === 'success') {
+          order.status = 'PROCESSING';
+          await order.save();
+
+          // Reduce stock
+          for (const item of order.items) {
+            await this.productsService.updateStock(item.product.toString(), -item.quantity);
+          }
+
+          await this.sendConfirmationEmail(order);
+
+          return { status: 'PROCESSING', order };
+        }
+        return { status: verification.data?.status || 'PENDING', order };
+      } catch (e) {
+        this.logger.warn(`Payment verification failed for ${orderId}: ${e.message}`);
+      }
+    }
+
+    return { status: order.status, order };
   }
 
   async verifyPayment(reference: string): Promise<OrderDocument> {
@@ -76,26 +181,17 @@ export class OrdersService {
     const order = await this.orderModel.findById(orderId).populate('items.product');
     if (!order) throw new NotFoundException('Order not found');
 
-    order.status = 'PAID';
-    order.paymentReference = reference;
-    await order.save();
+    if (order.status === 'PENDING') {
+      order.status = 'PROCESSING';
+      order.paymentReference = reference;
+      await order.save();
 
-    // Reduce stock
-    for (const item of order.items) {
-      await this.productsService.updateStock(item.product.toString(), -item.quantity);
-    }
+      // Reduce stock
+      for (const item of order.items) {
+        await this.productsService.updateStock(item.product.toString(), -item.quantity);
+      }
 
-    // Send confirmation email
-    const recipientEmail = order.user
-      ? (await this.orderModel.findById(orderId).populate('user').then(o => (o as any).user?.email))
-      : order.shippingAddress?.email;
-
-    if (recipientEmail) {
-      await this.resendService.sendEmail(
-        recipientEmail,
-        'Order Confirmed — Dobi Cakes ✨',
-        this.buildConfirmationEmail(order),
-      );
+      await this.sendConfirmationEmail(order);
     }
 
     return order;
@@ -121,6 +217,31 @@ export class OrdersService {
     order.status = status as any;
     await order.save();
     return order;
+  }
+
+  async update(id: string, updateData: any): Promise<OrderDocument> {
+    const order = await this.orderModel.findByIdAndUpdate(id, updateData, { new: true });
+    if (!order) throw new NotFoundException('Order not found');
+    return order;
+  }
+
+  // ─── HELPERS ────────────────────────────────────────
+  private async sendConfirmationEmail(order: any): Promise<void> {
+    try {
+      const recipientEmail = order.user
+        ? (await this.orderModel.findById(order._id).populate('user').then(o => (o as any).user?.email))
+        : order.shippingAddress?.email;
+
+      if (recipientEmail) {
+        await this.resendService.sendEmail(
+          recipientEmail,
+          'Order Confirmed — Dobi Cakes ✨',
+          this.buildConfirmationEmail(order),
+        );
+      }
+    } catch (e) {
+      this.logger.error(`Failed to send confirmation email: ${e.message}`);
+    }
   }
 
   private buildConfirmationEmail(order: any): string {

@@ -26,6 +26,7 @@ let ChatGateway = class ChatGateway {
         console.log(`Client disconnected: ${client.id}`);
     }
     async handleMessage(client, payload) {
+        console.log('Received message payload:', payload);
         const savedMessage = await this.chatService.saveMessage(payload);
         this.server.to(payload.roomId).emit('message', savedMessage);
         if (payload.senderType === 'USER') {

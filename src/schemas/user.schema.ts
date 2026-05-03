@@ -37,6 +37,15 @@ export class User {
 
   @Prop({ type: Date, required: false })
   resetPasswordExpires?: Date | null;
+
+  @Prop({ type: String, required: false })
+  otp?: string | null;
+
+  @Prop({ type: Date, required: false })
+  otpExpires?: Date | null;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

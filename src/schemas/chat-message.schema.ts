@@ -11,7 +11,7 @@ export class ChatMessage {
   @Prop({ required: true })
   userEmail: string;
 
-  @Prop({ required: true })
+  @Prop({ default: '' })
   message: string;
 
   @Prop({ required: true, enum: ['USER', 'ADMIN'] })
@@ -22,6 +22,9 @@ export class ChatMessage {
 
   @Prop()
   roomId: string;
+
+  @Prop({ type: [String], default: [] })
+  attachments: string[];
 }
 
 export const ChatMessageSchema = SchemaFactory.createForClass(ChatMessage);

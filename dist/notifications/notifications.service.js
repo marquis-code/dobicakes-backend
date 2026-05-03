@@ -17,13 +17,18 @@ const common_1 = require("@nestjs/common");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const notification_schema_1 = require("../schemas/notification.schema");
+const notifications_gateway_1 = require("./notifications.gateway");
 let NotificationsService = class NotificationsService {
     notificationModel;
-    constructor(notificationModel) {
+    gateway;
+    constructor(notificationModel, gateway) {
         this.notificationModel = notificationModel;
+        this.gateway = gateway;
     }
     async create(data) {
-        return this.notificationModel.create(data);
+        const notification = await this.notificationModel.create(data);
+        this.gateway.sendToAdmin('newNotification', notification);
+        return notification;
     }
     async findByUser(userId) {
         return this.notificationModel.find({ user: userId }).sort({ createdAt: -1 }).exec();
@@ -35,7 +40,10 @@ let NotificationsService = class NotificationsService {
         return this.notificationModel.findByIdAndUpdate(id, { isRead: true }, { new: true }).exec();
     }
     async markAllAsRead(userId) {
-        return this.notificationModel.updateMany({ user: userId, isRead: false }, { isRead: true }).exec();
+        const filter = { isRead: false };
+        if (userId && userId !== 'ADMIN')
+            filter.user = userId;
+        return this.notificationModel.updateMany(filter, { isRead: true }).exec();
     }
     async delete(id) {
         return this.notificationModel.findByIdAndDelete(id).exec();
@@ -45,6 +53,7 @@ exports.NotificationsService = NotificationsService;
 exports.NotificationsService = NotificationsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(notification_schema_1.Notification.name)),
-    __metadata("design:paramtypes", [mongoose_2.Model])
+    __metadata("design:paramtypes", [mongoose_2.Model,
+        notifications_gateway_1.NotificationsGateway])
 ], NotificationsService);
 //# sourceMappingURL=notifications.service.js.map

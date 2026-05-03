@@ -21,6 +21,9 @@ export declare class Order {
         accountNumber: string;
         accountName: string;
     };
+    virtualAccountRef?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 export declare const OrderSchema: import("mongoose").Schema<Order, import("mongoose").Model<Order, any, any, any, (Document<unknown, any, Order, any, import("mongoose").DefaultSchemaOptions> & Order & {
     _id: Types.ObjectId;
@@ -125,6 +128,33 @@ export declare const OrderSchema: import("mongoose").Schema<Order, import("mongo
         accountNumber: string;
         accountName: string;
     } | undefined, Order, Document<unknown, {}, Order, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Order & {
+        _id: Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    virtualAccountRef?: import("mongoose").SchemaDefinitionProperty<string | undefined, Order, Document<unknown, {}, Order, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Order & {
+        _id: Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    createdAt?: import("mongoose").SchemaDefinitionProperty<Date, Order, Document<unknown, {}, Order, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Order & {
+        _id: Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    updatedAt?: import("mongoose").SchemaDefinitionProperty<Date, Order, Document<unknown, {}, Order, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Order & {
         _id: Types.ObjectId;

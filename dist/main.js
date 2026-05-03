@@ -32,18 +32,25 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const core_1 = require("@nestjs/core");
 const app_module_1 = require("./app.module");
 const all_exceptions_filter_1 = require("./shared/filters/all-exceptions.filter");
+const nestjs_pino_1 = require("nestjs-pino");
+const compression_1 = __importDefault(require("compression"));
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
 async function bootstrap() {
-    const app = await core_1.NestFactory.create(app_module_1.AppModule);
+    const app = await core_1.NestFactory.create(app_module_1.AppModule, { bufferLogs: true });
+    app.useLogger(app.get(nestjs_pino_1.Logger));
+    app.use((0, compression_1.default)());
     app.enableCors();
     app.useGlobalFilters(new all_exceptions_filter_1.AllExceptionsFilter());
-    await app.listen(process.env.PORT ?? 3000);
-    console.log(`Application is running on: http://localhost:${process.env.PORT ?? 3000}`);
+    await app.listen(process.env.PORT ?? 4000);
+    console.log(`Application is running on: http://localhost:${process.env.PORT ?? 4000}`);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map

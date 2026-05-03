@@ -24,14 +24,23 @@ const appointments_module_1 = require("./appointments/appointments.module");
 const enquiries_module_1 = require("./enquiries/enquiries.module");
 const notifications_module_1 = require("./notifications/notifications.module");
 const marketing_module_1 = require("./marketing/marketing.module");
+const dashboard_module_1 = require("./dashboard/dashboard.module");
 const cache_manager_1 = require("@nestjs/cache-manager");
 const cache_manager_redis_yet_1 = require("cache-manager-redis-yet");
+const nestjs_pino_1 = require("nestjs-pino");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            nestjs_pino_1.LoggerModule.forRoot({
+                pinoHttp: {
+                    transport: process.env.NODE_ENV !== 'production'
+                        ? { target: 'pino-pretty', options: { colorize: true } }
+                        : undefined,
+                }
+            }),
             cache_manager_1.CacheModule.registerAsync({
                 isGlobal: true,
                 imports: [config_1.ConfigModule],
@@ -59,6 +68,10 @@ exports.AppModule = AppModule = __decorate([
                 imports: [config_1.ConfigModule],
                 useFactory: async (configService) => ({
                     uri: configService.get('MONGODB_URI'),
+                    maxPoolSize: 50,
+                    minPoolSize: 5,
+                    connectTimeoutMS: 10000,
+                    socketTimeoutMS: 45000,
                 }),
                 inject: [config_1.ConfigService],
             }),
@@ -74,6 +87,7 @@ exports.AppModule = AppModule = __decorate([
             enquiries_module_1.EnquiriesModule,
             notifications_module_1.NotificationsModule,
             marketing_module_1.MarketingModule,
+            dashboard_module_1.DashboardModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

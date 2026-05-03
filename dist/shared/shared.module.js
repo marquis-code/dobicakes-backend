@@ -12,14 +12,15 @@ const config_1 = require("@nestjs/config");
 const cloudinary_service_1 = require("./services/cloudinary.service");
 const resend_service_1 = require("./services/resend.service");
 const paystack_service_1 = require("./services/paystack.service");
+const google_calendar_service_1 = require("./services/google-calendar.service");
 let SharedModule = class SharedModule {
 };
 exports.SharedModule = SharedModule;
 exports.SharedModule = SharedModule = __decorate([
     (0, common_1.Module)({
         imports: [config_1.ConfigModule],
-        providers: [cloudinary_service_1.CloudinaryService, resend_service_1.ResendService, paystack_service_1.PaystackService],
-        exports: [cloudinary_service_1.CloudinaryService, resend_service_1.ResendService, paystack_service_1.PaystackService],
+        providers: [cloudinary_service_1.CloudinaryService, resend_service_1.ResendService, paystack_service_1.PaystackService, google_calendar_service_1.GoogleCalendarService],
+        exports: [cloudinary_service_1.CloudinaryService, resend_service_1.ResendService, paystack_service_1.PaystackService, google_calendar_service_1.GoogleCalendarService],
     })
 ], SharedModule);
 //# sourceMappingURL=shared.module.js.map

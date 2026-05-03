@@ -16,6 +16,7 @@ let Enquiry = class Enquiry extends mongoose_2.Document {
     name;
     email;
     phone;
+    subject;
     type;
     message;
     status;
@@ -31,11 +32,15 @@ __decorate([
     __metadata("design:type", String)
 ], Enquiry.prototype, "email", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], Enquiry.prototype, "phone", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true, enum: ['general', 'custom', 'partnership', 'complaint'] }),
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Enquiry.prototype, "subject", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 'general', enum: ['general', 'custom', 'partnership', 'complaint'] }),
     __metadata("design:type", String)
 ], Enquiry.prototype, "type", void 0);
 __decorate([

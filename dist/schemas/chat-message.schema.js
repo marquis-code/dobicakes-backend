@@ -18,6 +18,7 @@ let ChatMessage = class ChatMessage {
     senderType;
     isRead;
     roomId;
+    attachments;
 };
 exports.ChatMessage = ChatMessage;
 __decorate([
@@ -29,7 +30,7 @@ __decorate([
     __metadata("design:type", String)
 ], ChatMessage.prototype, "userEmail", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)({ default: '' }),
     __metadata("design:type", String)
 ], ChatMessage.prototype, "message", void 0);
 __decorate([
@@ -44,6 +45,10 @@ __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], ChatMessage.prototype, "roomId", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ type: [String], default: [] }),
+    __metadata("design:type", Array)
+], ChatMessage.prototype, "attachments", void 0);
 exports.ChatMessage = ChatMessage = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], ChatMessage);

@@ -13,6 +13,8 @@ const chat_gateway_1 = require("./chat.gateway");
 const chat_message_schema_1 = require("../schemas/chat-message.schema");
 const chat_service_1 = require("./chat.service");
 const chat_controller_1 = require("./chat.controller");
+const notifications_module_1 = require("../notifications/notifications.module");
+const cloudinary_service_1 = require("../shared/services/cloudinary.service");
 let ChatModule = class ChatModule {
 };
 exports.ChatModule = ChatModule;
@@ -20,8 +22,9 @@ exports.ChatModule = ChatModule = __decorate([
     (0, common_1.Module)({
         imports: [
             mongoose_1.MongooseModule.forFeature([{ name: chat_message_schema_1.ChatMessage.name, schema: chat_message_schema_1.ChatMessageSchema }]),
+            notifications_module_1.NotificationsModule,
         ],
-        providers: [chat_gateway_1.ChatGateway, chat_service_1.ChatService],
+        providers: [chat_gateway_1.ChatGateway, chat_service_1.ChatService, cloudinary_service_1.CloudinaryService],
         controllers: [chat_controller_1.ChatController],
     })
 ], ChatModule);

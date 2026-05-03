@@ -23,8 +23,20 @@ let MarketingController = class MarketingController {
     constructor(marketingService) {
         this.marketingService = marketingService;
     }
-    getBanners() {
+    getActiveBanners() {
         return this.marketingService.getActiveBanners();
+    }
+    getAllBanners() {
+        return this.marketingService.getAllBanners();
+    }
+    createBanner(data) {
+        return this.marketingService.createBanner(data);
+    }
+    updateBanner(id, data) {
+        return this.marketingService.updateBanner(id, data);
+    }
+    deleteBanner(id) {
+        return this.marketingService.deleteBanner(id);
     }
     subscribe(data) {
         return this.marketingService.subscribe(data.email, data.source);
@@ -47,11 +59,47 @@ let MarketingController = class MarketingController {
 };
 exports.MarketingController = MarketingController;
 __decorate([
-    (0, common_1.Get)('banners'),
+    (0, common_1.Get)('banners/active'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
-], MarketingController.prototype, "getBanners", null);
+], MarketingController.prototype, "getActiveBanners", null);
+__decorate([
+    (0, common_1.Get)('banners'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", void 0)
+], MarketingController.prototype, "getAllBanners", null);
+__decorate([
+    (0, common_1.Post)('banners'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], MarketingController.prototype, "createBanner", null);
+__decorate([
+    (0, common_1.Patch)('banners/:id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], MarketingController.prototype, "updateBanner", null);
+__decorate([
+    (0, common_1.Delete)('banners/:id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)('ADMIN'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], MarketingController.prototype, "deleteBanner", null);
 __decorate([
     (0, common_1.Post)('subscribe'),
     __param(0, (0, common_1.Body)()),

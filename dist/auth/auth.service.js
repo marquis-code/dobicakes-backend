@@ -130,6 +130,38 @@ let AuthService = class AuthService {
         });
         return this.login(user);
     }
+    async adminLogin(credentials) {
+        const user = await this.usersService.findByEmail(credentials.email);
+        if (!user || user.role !== 'ADMIN') {
+            throw new common_1.UnauthorizedException('Access denied');
+        }
+        const isPasswordValid = user.password ? await bcrypt.compare(credentials.password, user.password) : false;
+        if (!isPasswordValid) {
+            throw new common_1.UnauthorizedException('Invalid credentials');
+        }
+        const otp = '123456';
+        const expires = new Date();
+        expires.setMinutes(expires.getMinutes() + 10);
+        await this.usersService.update(user._id.toString(), {
+            otp,
+            otpExpires: expires,
+        });
+        return { message: 'OTP sent to registered administrator email' };
+    }
+    async verifyAdminOtp(credentials) {
+        const user = await this.usersService.findByEmail(credentials.email);
+        if (!user || user.role !== 'ADMIN') {
+            throw new common_1.UnauthorizedException('Access denied');
+        }
+        if (user.otp !== credentials.otp || !user.otpExpires || new Date() > user.otpExpires) {
+            throw new common_1.UnauthorizedException('Invalid or expired OTP');
+        }
+        await this.usersService.update(user._id.toString(), {
+            otp: null,
+            otpExpires: null,
+        });
+        return this.login(user);
+    }
     async firebaseLogin(token) {
         const decodedToken = await this.firebaseService.verifyIdToken(token);
         let user = await this.usersService.findByFirebaseUid(decodedToken.uid);

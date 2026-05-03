@@ -15,10 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
+const passport_1 = require("@nestjs/passport");
 let AuthController = class AuthController {
     authService;
     constructor(authService) {
         this.authService = authService;
+    }
+    async getProfile(req) {
+        return req.user;
     }
     async register(userData) {
         return this.authService.register(userData);
@@ -33,6 +37,12 @@ let AuthController = class AuthController {
     async firebaseLogin(token) {
         return this.authService.firebaseLogin(token);
     }
+    async adminLogin(credentials) {
+        return this.authService.adminLogin(credentials);
+    }
+    async verifyAdminOtp(credentials) {
+        return this.authService.verifyAdminOtp(credentials);
+    }
     async forgotPassword(email) {
         return this.authService.forgotPassword(email);
     }
@@ -41,6 +51,14 @@ let AuthController = class AuthController {
     }
 };
 exports.AuthController = AuthController;
+__decorate([
+    (0, common_1.UseGuards)((0, passport_1.AuthGuard)('jwt')),
+    (0, common_1.Get)('profile'),
+    __param(0, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "getProfile", null);
 __decorate([
     (0, common_1.Post)('register'),
     __param(0, (0, common_1.Body)()),
@@ -62,6 +80,20 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", Promise)
 ], AuthController.prototype, "firebaseLogin", null);
+__decorate([
+    (0, common_1.Post)('admin/login'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "adminLogin", null);
+__decorate([
+    (0, common_1.Post)('admin/verify-otp'),
+    __param(0, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], AuthController.prototype, "verifyAdminOtp", null);
 __decorate([
     (0, common_1.Post)('forgot-password'),
     __param(0, (0, common_1.Body)('email')),

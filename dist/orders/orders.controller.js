@@ -17,10 +17,13 @@ const common_1 = require("@nestjs/common");
 const orders_service_1 = require("./orders.service");
 const jwt_auth_guard_1 = require("../shared/guards/jwt-auth.guard");
 const optional_auth_guard_1 = require("../shared/guards/optional-auth.guard");
+const paystack_service_1 = require("../shared/services/paystack.service");
 let OrdersController = class OrdersController {
     ordersService;
-    constructor(ordersService) {
+    paystackService;
+    constructor(ordersService, paystackService) {
         this.ordersService = ordersService;
+        this.paystackService = paystackService;
     }
     create(createOrderDto, req) {
         const orderData = {
@@ -33,6 +36,19 @@ let OrdersController = class OrdersController {
     verifyPayment(reference) {
         return this.ordersService.verifyPayment(reference);
     }
+    async handlePaystackWebhook(body, signature, req) {
+        const rawBody = JSON.stringify(body);
+        const isValid = this.paystackService.verifyWebhookSignature(rawBody, signature || '');
+        if (!isValid) {
+            console.warn('Invalid Paystack webhook signature');
+            return { status: 'ignored' };
+        }
+        await this.ordersService.handleWebhook(body.event, body.data);
+        return { status: 'ok' };
+    }
+    async checkPaymentStatus(orderId) {
+        return this.ordersService.checkPaymentStatus(orderId);
+    }
     findMyOrders(req) {
         return this.ordersService.findByUser(req.user._id);
     }
@@ -44,6 +60,12 @@ let OrdersController = class OrdersController {
     }
     updateStatus(id, status) {
         return this.ordersService.updateStatus(id, status);
+    }
+    update(id, updateData) {
+        if (updateData.status && Object.keys(updateData).length === 1) {
+            return this.ordersService.updateStatus(id, updateData.status);
+        }
+        return this.ordersService.update(id, updateData);
     }
 };
 exports.OrdersController = OrdersController;
@@ -63,6 +85,23 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "verifyPayment", null);
+__decorate([
+    (0, common_1.Post)('webhook/paystack'),
+    (0, common_1.HttpCode)(200),
+    __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Headers)('x-paystack-signature')),
+    __param(2, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, Object]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "handlePaystackWebhook", null);
+__decorate([
+    (0, common_1.Get)('payment-status/:orderId'),
+    __param(0, (0, common_1.Param)('orderId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], OrdersController.prototype, "checkPaymentStatus", null);
 __decorate([
     (0, common_1.Get)('user/my-orders'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
@@ -94,8 +133,18 @@ __decorate([
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", void 0)
 ], OrdersController.prototype, "updateStatus", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], OrdersController.prototype, "update", null);
 exports.OrdersController = OrdersController = __decorate([
     (0, common_1.Controller)('orders'),
-    __metadata("design:paramtypes", [orders_service_1.OrdersService])
+    __metadata("design:paramtypes", [orders_service_1.OrdersService,
+        paystack_service_1.PaystackService])
 ], OrdersController);
 //# sourceMappingURL=orders.controller.js.map

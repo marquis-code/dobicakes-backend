@@ -38,8 +38,24 @@ export class MarketingService {
     return this.bannerModel.find({ active: true }).sort({ order: 1 }).lean().exec();
   }
 
+  async getAllBanners() {
+    return this.bannerModel.find().sort({ order: 1 }).lean().exec();
+  }
+
   async createBanner(data: any) {
     return this.bannerModel.create(data);
+  }
+
+  async updateBanner(id: string, data: any) {
+    const banner = await this.bannerModel.findByIdAndUpdate(id, data, { new: true }).exec();
+    if (!banner) throw new NotFoundException('Banner not found');
+    return banner;
+  }
+
+  async deleteBanner(id: string) {
+    const result = await this.bannerModel.findByIdAndDelete(id).exec();
+    if (!result) throw new NotFoundException('Banner not found');
+    return { success: true };
   }
 
   // Promos

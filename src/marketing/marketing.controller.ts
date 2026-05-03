@@ -9,9 +9,37 @@ export class MarketingController {
   constructor(private readonly marketingService: MarketingService) {}
 
   // Public
-  @Get('banners')
-  getBanners() {
+  @Get('banners/active')
+  getActiveBanners() {
     return this.marketingService.getActiveBanners();
+  }
+
+  @Get('banners')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  getAllBanners() {
+    return this.marketingService.getAllBanners();
+  }
+
+  @Post('banners')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  createBanner(@Body() data: any) {
+    return this.marketingService.createBanner(data);
+  }
+
+  @Patch('banners/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  updateBanner(@Param('id') id: string, @Body() data: any) {
+    return this.marketingService.updateBanner(id, data);
+  }
+
+  @Delete('banners/:id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  deleteBanner(@Param('id') id: string) {
+    return this.marketingService.deleteBanner(id);
   }
 
   @Post('subscribe')

@@ -1,8 +1,10 @@
 import { Model } from 'mongoose';
 import { Notification } from '../schemas/notification.schema';
+import { NotificationsGateway } from './notifications.gateway';
 export declare class NotificationsService {
     private notificationModel;
-    constructor(notificationModel: Model<Notification>);
+    private readonly gateway;
+    constructor(notificationModel: Model<Notification>, gateway: NotificationsGateway);
     create(data: any): Promise<import("mongoose").Document<unknown, {}, Notification, {}, import("mongoose").DefaultSchemaOptions> & Notification & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
@@ -31,7 +33,7 @@ export declare class NotificationsService {
     } & {
         id: string;
     }) | null>;
-    markAllAsRead(userId: string): Promise<import("mongoose").UpdateWriteOpResult>;
+    markAllAsRead(userId?: string): Promise<import("mongoose").UpdateWriteOpResult>;
     delete(id: string): Promise<(import("mongoose").Document<unknown, {}, Notification, {}, import("mongoose").DefaultSchemaOptions> & Notification & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {

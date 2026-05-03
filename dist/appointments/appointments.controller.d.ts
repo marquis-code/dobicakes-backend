@@ -2,7 +2,18 @@ import { AppointmentsService } from './appointments.service';
 export declare class AppointmentsController {
     private readonly appointmentsService;
     constructor(appointmentsService: AppointmentsService);
-    create(data: any): Promise<import("mongoose").Document<unknown, {}, import("../schemas/appointment.schema").Appointment, {}, import("mongoose").DefaultSchemaOptions> & import("../schemas/appointment.schema").Appointment & Required<{
+    create(data: any): Promise<{
+        appointment: import("mongoose").Document<unknown, {}, import("../schemas/appointment.schema").Appointment, {}, import("mongoose").DefaultSchemaOptions> & import("../schemas/appointment.schema").Appointment & Required<{
+            _id: import("mongoose").Types.ObjectId;
+        }> & {
+            __v: number;
+        } & {
+            id: string;
+        };
+        paymentUrl: any;
+        reference: any;
+    }>;
+    verifyPayment(reference: string): Promise<import("mongoose").Document<unknown, {}, import("../schemas/appointment.schema").Appointment, {}, import("mongoose").DefaultSchemaOptions> & import("../schemas/appointment.schema").Appointment & Required<{
         _id: import("mongoose").Types.ObjectId;
     }> & {
         __v: number;

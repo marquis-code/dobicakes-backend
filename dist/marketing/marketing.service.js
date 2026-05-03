@@ -46,8 +46,23 @@ let MarketingService = class MarketingService {
     async getActiveBanners() {
         return this.bannerModel.find({ active: true }).sort({ order: 1 }).lean().exec();
     }
+    async getAllBanners() {
+        return this.bannerModel.find().sort({ order: 1 }).lean().exec();
+    }
     async createBanner(data) {
         return this.bannerModel.create(data);
+    }
+    async updateBanner(id, data) {
+        const banner = await this.bannerModel.findByIdAndUpdate(id, data, { new: true }).exec();
+        if (!banner)
+            throw new common_1.NotFoundException('Banner not found');
+        return banner;
+    }
+    async deleteBanner(id) {
+        const result = await this.bannerModel.findByIdAndDelete(id).exec();
+        if (!result)
+            throw new common_1.NotFoundException('Banner not found');
+        return { success: true };
     }
     async validatePromo(code) {
         const promo = await this.promoModel.findOne({ code, isActive: true }).lean().exec();

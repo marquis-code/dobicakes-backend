@@ -18,6 +18,7 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const product_schema_1 = require("../schemas/product.schema");
 const cache_manager_1 = require("@nestjs/cache-manager");
+const pagination_1 = require("../shared/utils/pagination");
 const PRODUCTS_CACHE_KEY = 'products:all';
 const PRODUCT_CACHE_PREFIX = 'products:';
 const CACHE_TTL = 300;
@@ -34,7 +35,9 @@ let ProductsService = class ProductsService {
         return saved;
     }
     async findAll(query = {}) {
-        const cacheKey = `${PRODUCTS_CACHE_KEY}:${JSON.stringify(query)}`;
+        const page = parseInt(query.page || '1');
+        const limit = parseInt(query.limit || '12');
+        const cacheKey = `${PRODUCTS_CACHE_KEY}:${page}:${limit}:${JSON.stringify(query)}`;
         try {
             const cached = await this.cacheManager.get(cacheKey);
             if (cached)
@@ -48,31 +51,21 @@ let ProductsService = class ProductsService {
             filter.category = query.category;
         if (query.availabilityType && query.availabilityType !== 'all')
             filter.availabilityType = query.availabilityType;
-        const q = this.productModel.find(filter).lean();
-        if (query.limit) {
-            q.limit(parseInt(query.limit.toString()));
-        }
-        if (query.sort) {
-            const sortMap = {
-                'price_low': { price: 1 },
-                'price_high': { price: -1 },
-                'latest': { createdAt: -1 },
-                'name': { name: 1 }
-            };
-            if (sortMap[query.sort])
-                q.sort(sortMap[query.sort]);
-        }
-        else {
-            q.sort({ createdAt: -1 });
-        }
-        const products = await q.exec();
+        const sortMap = {
+            'price_low': { price: 1 },
+            'price_high': { price: -1 },
+            'latest': { createdAt: -1 },
+            'name': { name: 1 }
+        };
+        const sort = sortMap[query.sort] || { createdAt: -1 };
+        const result = await (0, pagination_1.paginate)(this.productModel, filter, page, limit, sort);
         try {
-            await this.cacheManager.set(cacheKey, products, CACHE_TTL);
+            await this.cacheManager.set(cacheKey, result, CACHE_TTL);
         }
         catch (e) {
             console.warn('Cache save failed:', e.message);
         }
-        return products;
+        return result;
     }
     async findOne(id) {
         const cacheKey = `${PRODUCT_CACHE_PREFIX}${id}`;

@@ -3,6 +3,7 @@ export declare class Enquiry extends Document {
     name: string;
     email: string;
     phone: string;
+    subject: string;
     type: string;
     message: string;
     status: string;
@@ -73,6 +74,15 @@ export declare const EnquirySchema: import("mongoose").Schema<Enquiry, import("m
         id: string;
     }> | undefined;
     message?: import("mongoose").SchemaDefinitionProperty<string, Enquiry, Document<unknown, {}, Enquiry, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Enquiry & Required<{
+        _id: import("mongoose").Types.ObjectId;
+    }> & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    subject?: import("mongoose").SchemaDefinitionProperty<string, Enquiry, Document<unknown, {}, Enquiry, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Enquiry & Required<{
         _id: import("mongoose").Types.ObjectId;

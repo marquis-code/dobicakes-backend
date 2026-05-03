@@ -22,6 +22,9 @@ let Order = class Order {
     paymentProofUrl;
     shippingAddress;
     virtualAccount;
+    virtualAccountRef;
+    createdAt;
+    updatedAt;
 };
 exports.Order = Order;
 __decorate([
@@ -70,6 +73,10 @@ __decorate([
     (0, mongoose_1.Prop)({ type: Object }),
     __metadata("design:type", Object)
 ], Order.prototype, "virtualAccount", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Order.prototype, "virtualAccountRef", void 0);
 exports.Order = Order = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Order);

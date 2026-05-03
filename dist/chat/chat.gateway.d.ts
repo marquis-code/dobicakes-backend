@@ -13,6 +13,7 @@ export declare class ChatGateway implements OnGatewayConnection, OnGatewayDiscon
         message: string;
         roomId: string;
         senderType: 'USER' | 'ADMIN';
+        attachments?: string[];
     }): Promise<void>;
     handleJoinRoom(client: Socket, roomId: string): void;
 }

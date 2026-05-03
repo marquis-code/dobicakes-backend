@@ -6,7 +6,7 @@ export declare class ProductsService {
     private cacheManager;
     constructor(productModel: Model<ProductDocument>, cacheManager: Cache);
     create(productData: any): Promise<ProductDocument>;
-    findAll(query?: any): Promise<any[]>;
+    findAll(query?: any): Promise<any>;
     findOne(id: string): Promise<any>;
     update(id: string, updateData: any): Promise<ProductDocument>;
     remove(id: string): Promise<void>;

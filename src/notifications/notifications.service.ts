@@ -2,13 +2,19 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Notification } from '../schemas/notification.schema';
+import { NotificationsGateway } from './notifications.gateway';
 
 @Injectable()
 export class NotificationsService {
-  constructor(@InjectModel(Notification.name) private notificationModel: Model<Notification>) {}
+  constructor(
+    @InjectModel(Notification.name) private notificationModel: Model<Notification>,
+    private readonly gateway: NotificationsGateway
+  ) {}
 
   async create(data: any) {
-    return this.notificationModel.create(data);
+    const notification = await this.notificationModel.create(data);
+    this.gateway.sendToAdmin('newNotification', notification);
+    return notification;
   }
 
   async findByUser(userId: string) {
@@ -23,8 +29,10 @@ export class NotificationsService {
     return this.notificationModel.findByIdAndUpdate(id, { isRead: true }, { new: true }).exec();
   }
 
-  async markAllAsRead(userId: string) {
-    return this.notificationModel.updateMany({ user: userId, isRead: false }, { isRead: true }).exec();
+  async markAllAsRead(userId?: string) {
+    const filter: any = { isRead: false };
+    if (userId && userId !== 'ADMIN') filter.user = userId;
+    return this.notificationModel.updateMany(filter, { isRead: true }).exec();
   }
 
   async delete(id: string) {

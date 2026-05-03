@@ -2,11 +2,33 @@ import { MarketingService } from './marketing.service';
 export declare class MarketingController {
     private readonly marketingService;
     constructor(marketingService: MarketingService);
-    getBanners(): Promise<(import("../schemas/marketing.schema").Banner & {
+    getActiveBanners(): Promise<(import("../schemas/marketing.schema").Banner & {
         _id: import("mongoose").Types.ObjectId;
     } & {
         __v: number;
     })[]>;
+    getAllBanners(): Promise<(import("../schemas/marketing.schema").Banner & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    })[]>;
+    createBanner(data: any): Promise<import("mongoose").Document<unknown, {}, import("../schemas/marketing.schema").Banner, {}, import("mongoose").DefaultSchemaOptions> & import("../schemas/marketing.schema").Banner & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    } & {
+        id: string;
+    }>;
+    updateBanner(id: string, data: any): Promise<import("mongoose").Document<unknown, {}, import("../schemas/marketing.schema").Banner, {}, import("mongoose").DefaultSchemaOptions> & import("../schemas/marketing.schema").Banner & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    } & {
+        id: string;
+    }>;
+    deleteBanner(id: string): Promise<{
+        success: boolean;
+    }>;
     subscribe(data: {
         email: string;
         source?: string;

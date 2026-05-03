@@ -13,6 +13,11 @@ export class AppointmentsController {
     return this.appointmentsService.create(data);
   }
 
+  @Post('verify/:reference')
+  verifyPayment(@Param('reference') reference: string) {
+    return this.appointmentsService.verifyAppointmentPayment(reference);
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')

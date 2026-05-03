@@ -34,12 +34,27 @@ export declare class MarketingService {
     } & {
         __v: number;
     })[]>;
+    getAllBanners(): Promise<(Banner & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    })[]>;
     createBanner(data: any): Promise<import("mongoose").Document<unknown, {}, Banner, {}, import("mongoose").DefaultSchemaOptions> & Banner & {
         _id: import("mongoose").Types.ObjectId;
     } & {
         __v: number;
     } & {
         id: string;
+    }>;
+    updateBanner(id: string, data: any): Promise<import("mongoose").Document<unknown, {}, Banner, {}, import("mongoose").DefaultSchemaOptions> & Banner & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    } & {
+        id: string;
+    }>;
+    deleteBanner(id: string): Promise<{
+        success: boolean;
     }>;
     validatePromo(code: string): Promise<Promo & {
         _id: import("mongoose").Types.ObjectId;

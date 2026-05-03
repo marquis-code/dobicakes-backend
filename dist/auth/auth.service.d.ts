@@ -23,6 +23,13 @@ export declare class AuthService {
         access_token: string;
         user: any;
     }>;
+    adminLogin(credentials: any): Promise<{
+        message: string;
+    }>;
+    verifyAdminOtp(credentials: any): Promise<{
+        access_token: string;
+        user: any;
+    }>;
     firebaseLogin(token: string): Promise<{
         access_token: string;
         user: any;

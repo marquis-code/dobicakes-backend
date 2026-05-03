@@ -11,6 +11,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
+var OrdersService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.OrdersService = void 0;
 const common_1 = require("@nestjs/common");
@@ -20,11 +21,12 @@ const order_schema_1 = require("../schemas/order.schema");
 const paystack_service_1 = require("../shared/services/paystack.service");
 const resend_service_1 = require("../shared/services/resend.service");
 const products_service_1 = require("../products/products.service");
-let OrdersService = class OrdersService {
+let OrdersService = OrdersService_1 = class OrdersService {
     orderModel;
     paystackService;
     resendService;
     productsService;
+    logger = new common_1.Logger(OrdersService_1.name);
     constructor(orderModel, paystackService, resendService, productsService) {
         this.orderModel = orderModel;
         this.paystackService = paystackService;
@@ -40,28 +42,100 @@ let OrdersService = class OrdersService {
         }
         const order = new this.orderModel(orderData);
         if (order.paymentMethod === 'PAYSTACK') {
-            const payment = await this.paystackService.initializePayment(orderData.userEmail || orderData.shippingAddress.email, order.totalAmount, { orderId: order._id });
+            const payment = await this.paystackService.initializePayment(orderData.userEmail || orderData.shippingAddress.email, order.totalAmount, { orderId: order._id.toString() });
             order.paymentReference = payment.data.reference;
             await order.save();
             return { order, payment };
         }
         if (order.paymentMethod === 'BANK_TRANSFER') {
+            await order.save();
             try {
-                const [firstName, ...lastNameParts] = (orderData.shippingAddress.name || 'Guest').split(' ');
-                const customer = await this.paystackService.createCustomer(orderData.userEmail || orderData.shippingAddress.email || `guest_${order._id}@dobicakes.com`, firstName, lastNameParts.join(' ') || 'User', orderData.shippingAddress.phone);
-                const va = await this.paystackService.createVirtualAccount(customer.data.customer_code);
-                order.virtualAccount = {
-                    bankName: va.data.bank.name,
-                    accountNumber: va.data.account_number,
-                    accountName: va.data.account_name
-                };
+                const email = orderData.userEmail || orderData.shippingAddress.email || `guest_${order._id}@dobicakes.com`;
+                const name = orderData.shippingAddress?.name || 'Dobi Cakes Customer';
+                const bankTransfer = await this.paystackService.createTransferRecipient(name, email, order.totalAmount, { orderId: order._id.toString(), custom_fields: [{ display_name: 'Order ID', variable_name: 'order_id', value: order._id.toString() }] });
+                if (bankTransfer.status && bankTransfer.data) {
+                    order.paymentReference = bankTransfer.data.reference;
+                    order.virtualAccountRef = bankTransfer.data.access_code;
+                    await order.save();
+                    return {
+                        order,
+                        bankTransfer: {
+                            reference: bankTransfer.data.reference,
+                            accessCode: bankTransfer.data.access_code,
+                            authorizationUrl: bankTransfer.data.authorization_url,
+                        },
+                    };
+                }
             }
             catch (err) {
-                console.error('Virtual account creation failed:', err);
+                this.logger.error(`Bank transfer initialization failed: ${err?.response?.data?.message || err.message}`);
             }
+            await order.save();
+            return { order };
         }
         await order.save();
         return { order };
+    }
+    async handleWebhook(event, data) {
+        this.logger.log(`Webhook received: ${event}`);
+        if (event === 'charge.success') {
+            const reference = data.reference;
+            const orderId = data.metadata?.orderId;
+            if (!orderId && !reference) {
+                this.logger.warn('Webhook charge.success without orderId or reference');
+                return;
+            }
+            let order = null;
+            if (reference) {
+                order = await this.orderModel.findOne({ paymentReference: reference });
+            }
+            if (!order && orderId) {
+                order = await this.orderModel.findById(orderId);
+            }
+            if (!order) {
+                this.logger.warn(`Webhook: Order not found for ref=${reference}, id=${orderId}`);
+                return;
+            }
+            if (order.status === 'PROCESSING') {
+                this.logger.log(`Order ${order._id} already marked as PAID`);
+                return;
+            }
+            order.status = 'PROCESSING';
+            order.paymentReference = reference;
+            await order.save();
+            this.logger.log(`Order ${order._id} marked PAID via webhook`);
+            for (const item of order.items) {
+                await this.productsService.updateStock(item.product.toString(), -item.quantity);
+            }
+            await this.sendConfirmationEmail(order);
+        }
+    }
+    async checkPaymentStatus(orderId) {
+        const order = await this.orderModel.findById(orderId);
+        if (!order)
+            throw new common_1.NotFoundException('Order not found');
+        if (order.status === 'PROCESSING') {
+            return { status: 'PROCESSING', order };
+        }
+        if (order.paymentReference) {
+            try {
+                const verification = await this.paystackService.verifyPayment(order.paymentReference);
+                if (verification.data?.status === 'success') {
+                    order.status = 'PROCESSING';
+                    await order.save();
+                    for (const item of order.items) {
+                        await this.productsService.updateStock(item.product.toString(), -item.quantity);
+                    }
+                    await this.sendConfirmationEmail(order);
+                    return { status: 'PROCESSING', order };
+                }
+                return { status: verification.data?.status || 'PENDING', order };
+            }
+            catch (e) {
+                this.logger.warn(`Payment verification failed for ${orderId}: ${e.message}`);
+            }
+        }
+        return { status: order.status, order };
     }
     async verifyPayment(reference) {
         const verification = await this.paystackService.verifyPayment(reference);
@@ -72,17 +146,14 @@ let OrdersService = class OrdersService {
         const order = await this.orderModel.findById(orderId).populate('items.product');
         if (!order)
             throw new common_1.NotFoundException('Order not found');
-        order.status = 'PAID';
-        order.paymentReference = reference;
-        await order.save();
-        for (const item of order.items) {
-            await this.productsService.updateStock(item.product.toString(), -item.quantity);
-        }
-        const recipientEmail = order.user
-            ? (await this.orderModel.findById(orderId).populate('user').then(o => o.user?.email))
-            : order.shippingAddress?.email;
-        if (recipientEmail) {
-            await this.resendService.sendEmail(recipientEmail, 'Order Confirmed — Dobi Cakes ✨', this.buildConfirmationEmail(order));
+        if (order.status === 'PENDING') {
+            order.status = 'PROCESSING';
+            order.paymentReference = reference;
+            await order.save();
+            for (const item of order.items) {
+                await this.productsService.updateStock(item.product.toString(), -item.quantity);
+            }
+            await this.sendConfirmationEmail(order);
         }
         return order;
     }
@@ -105,6 +176,25 @@ let OrdersService = class OrdersService {
         order.status = status;
         await order.save();
         return order;
+    }
+    async update(id, updateData) {
+        const order = await this.orderModel.findByIdAndUpdate(id, updateData, { new: true });
+        if (!order)
+            throw new common_1.NotFoundException('Order not found');
+        return order;
+    }
+    async sendConfirmationEmail(order) {
+        try {
+            const recipientEmail = order.user
+                ? (await this.orderModel.findById(order._id).populate('user').then(o => o.user?.email))
+                : order.shippingAddress?.email;
+            if (recipientEmail) {
+                await this.resendService.sendEmail(recipientEmail, 'Order Confirmed — Dobi Cakes ✨', this.buildConfirmationEmail(order));
+            }
+        }
+        catch (e) {
+            this.logger.error(`Failed to send confirmation email: ${e.message}`);
+        }
     }
     buildConfirmationEmail(order) {
         const items = order.items.map((item) => `
@@ -157,7 +247,7 @@ let OrdersService = class OrdersService {
     }
 };
 exports.OrdersService = OrdersService;
-exports.OrdersService = OrdersService = __decorate([
+exports.OrdersService = OrdersService = OrdersService_1 = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(order_schema_1.Order.name)),
     __metadata("design:paramtypes", [mongoose_2.Model,

@@ -26,6 +26,9 @@ let AppointmentsController = class AppointmentsController {
     create(data) {
         return this.appointmentsService.create(data);
     }
+    verifyPayment(reference) {
+        return this.appointmentsService.verifyAppointmentPayment(reference);
+    }
     findAll() {
         return this.appointmentsService.findAll();
     }
@@ -47,6 +50,13 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AppointmentsController.prototype, "create", null);
+__decorate([
+    (0, common_1.Post)('verify/:reference'),
+    __param(0, (0, common_1.Param)('reference')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], AppointmentsController.prototype, "verifyPayment", null);
 __decorate([
     (0, common_1.Get)(),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),

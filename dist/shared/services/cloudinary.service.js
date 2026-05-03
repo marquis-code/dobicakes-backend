@@ -24,10 +24,21 @@ let CloudinaryService = class CloudinaryService {
         });
     }
     async uploadImage(file) {
-        const result = await cloudinary_1.v2.uploader.upload(file, {
-            folder: 'adaobicakes',
+        return new Promise((resolve, reject) => {
+            const upload = cloudinary_1.v2.uploader.upload_stream({ folder: 'dobi-cakes' }, (error, result) => {
+                if (error || !result)
+                    return reject(error || new Error('Upload failed'));
+                resolve(result.secure_url);
+            });
+            if (file.buffer) {
+                upload.end(file.buffer);
+            }
+            else {
+                cloudinary_1.v2.uploader.upload(file, { folder: 'dobi-cakes' })
+                    .then(res => resolve(res.secure_url))
+                    .catch(err => reject(err));
+            }
         });
-        return result.secure_url;
     }
 };
 exports.CloudinaryService = CloudinaryService;

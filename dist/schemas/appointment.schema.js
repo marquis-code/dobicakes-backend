@@ -22,6 +22,11 @@ let Appointment = class Appointment extends mongoose_2.Document {
     type;
     notes;
     status;
+    price;
+    paymentStatus;
+    paymentReference;
+    googleCalendarEventId;
+    duration;
 };
 exports.Appointment = Appointment;
 __decorate([
@@ -60,6 +65,26 @@ __decorate([
     (0, mongoose_1.Prop)({ default: 'pending', enum: ['pending', 'confirmed', 'cancelled', 'completed'] }),
     __metadata("design:type", String)
 ], Appointment.prototype, "status", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ required: true, default: 0 }),
+    __metadata("design:type", Number)
+], Appointment.prototype, "price", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 'unpaid', enum: ['unpaid', 'paid', 'refunded'] }),
+    __metadata("design:type", String)
+], Appointment.prototype, "paymentStatus", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Appointment.prototype, "paymentReference", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], Appointment.prototype, "googleCalendarEventId", void 0);
+__decorate([
+    (0, mongoose_1.Prop)({ default: 60 }),
+    __metadata("design:type", Number)
+], Appointment.prototype, "duration", void 0);
 exports.Appointment = Appointment = __decorate([
     (0, mongoose_1.Schema)({ timestamps: true })
 ], Appointment);

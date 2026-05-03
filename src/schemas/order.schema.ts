@@ -52,6 +52,12 @@ export class Order {
     accountNumber: string;
     accountName: string;
   };
+
+  @Prop()
+  virtualAccountRef?: string;
+  
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export const OrderSchema = SchemaFactory.createForClass(Order);

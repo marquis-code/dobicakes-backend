@@ -29,6 +29,21 @@ export class Appointment extends Document {
 
   @Prop({ default: 'pending', enum: ['pending', 'confirmed', 'cancelled', 'completed'] })
   status: string;
+
+  @Prop({ required: true, default: 0 })
+  price: number;
+
+  @Prop({ default: 'unpaid', enum: ['unpaid', 'paid', 'refunded'] })
+  paymentStatus: string;
+
+  @Prop()
+  paymentReference: string;
+
+  @Prop()
+  googleCalendarEventId: string;
+
+  @Prop({ default: 60 }) // duration in minutes
+  duration: number;
 }
 
 export const AppointmentSchema = SchemaFactory.createForClass(Appointment);

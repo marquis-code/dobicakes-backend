@@ -15,11 +15,20 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { EnquiriesModule } from './enquiries/enquiries.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MarketingModule } from './marketing/marketing.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
+import { LoggerModule } from 'nestjs-pino';
 
 @Module({
   imports: [
+    LoggerModule.forRoot({
+      pinoHttp: {
+        transport: process.env.NODE_ENV !== 'production' 
+          ? { target: 'pino-pretty', options: { colorize: true } } 
+          : undefined,
+      }
+    }),
     CacheModule.registerAsync({
       isGlobal: true,
       imports: [ConfigModule],
@@ -46,6 +55,10 @@ import { redisStore } from 'cache-manager-redis-yet';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
+        maxPoolSize: 50, // Connection Pooling
+        minPoolSize: 5,
+        connectTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
       }),
       inject: [ConfigService],
     }),
@@ -61,6 +74,7 @@ import { redisStore } from 'cache-manager-redis-yet';
     EnquiriesModule,
     NotificationsModule,
     MarketingModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

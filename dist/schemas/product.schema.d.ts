@@ -17,6 +17,8 @@ export declare class Product {
     tags: string[];
     availabilityType: 'NOW' | 'PREORDER';
     metadata: Record<string, any>;
+    createdAt: Date;
+    updatedAt: Date;
 }
 export declare const ProductSchema: import("mongoose").Schema<Product, import("mongoose").Model<Product, any, any, any, (Document<unknown, any, Product, any, import("mongoose").DefaultSchemaOptions> & Product & {
     _id: import("mongoose").Types.ObjectId;
@@ -149,6 +151,24 @@ export declare const ProductSchema: import("mongoose").Schema<Product, import("m
         id: string;
     }> | undefined;
     metadata?: import("mongoose").SchemaDefinitionProperty<Record<string, any>, Product, Document<unknown, {}, Product, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Product & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    createdAt?: import("mongoose").SchemaDefinitionProperty<Date, Product, Document<unknown, {}, Product, {
+        id: string;
+    }, import("mongoose").DefaultSchemaOptions> & Omit<Product & {
+        _id: import("mongoose").Types.ObjectId;
+    } & {
+        __v: number;
+    }, "id"> & {
+        id: string;
+    }> | undefined;
+    updatedAt?: import("mongoose").SchemaDefinitionProperty<Date, Product, Document<unknown, {}, Product, {
         id: string;
     }, import("mongoose").DefaultSchemaOptions> & Omit<Product & {
         _id: import("mongoose").Types.ObjectId;

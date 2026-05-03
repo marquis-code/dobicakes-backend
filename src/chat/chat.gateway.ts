@@ -33,8 +33,10 @@ export class ChatGateway implements OnGatewayConnection, OnGatewayDisconnect {
     userEmail: string; 
     message: string; 
     roomId: string;
-    senderType: 'USER' | 'ADMIN'
+    senderType: 'USER' | 'ADMIN';
+    attachments?: string[];
   }) {
+    console.log('Received message payload:', payload);
     const savedMessage = await this.chatService.saveMessage(payload);
     
     // Broadcast to the room
